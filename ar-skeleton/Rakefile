@@ -24,6 +24,33 @@ task "db:migrate" do
   end
 end
 
+namespace :generate do
+  desc "Create an empty migration in db/migrate, e.g., rake generate:migration NAME=create_tasks"
+  task :migration do
+    unless ENV.has_key?('NAME')
+      raise "Must specificy migration name, e.g., rake generate:migration NAME=create_tasks"
+    end
+
+    name     = ENV['NAME'].camelize
+    filename = "%s_%s.rb" % [Time.now.strftime('%Y%m%d%H%M%S'), ENV['NAME'].underscore]
+    path     = APP_ROOT.join('db', 'migrate', filename)
+
+    if File.exist?(path)
+      raise "ERROR: File '#{path}' already exists"
+    end
+
+    puts "Creating #{path}"
+    File.open(path, 'w+') do |f|
+      f.write(<<-EOF.strip_heredoc)
+        class #{name} < ActiveRecord::Migration
+          def change
+          end
+        end
+      EOF
+    end
+  end
+end
+
 desc "populate the test database with sample data"
 task "db:seed" do
   require APP_ROOT.join('db', 'seeds.rb')
