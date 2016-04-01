@@ -1,3 +1,3 @@
 get '/' do
-  redirect '/horses'
+  erb :'racer/index'
 end
